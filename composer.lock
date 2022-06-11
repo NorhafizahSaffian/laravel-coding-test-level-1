@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c61ff82cbf0142a401a48a8161e1595a",
+    "content-hash": "7142e25aeb896aea91962d91d26e1be3",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2855,6 +2855,57 @@
                 }
             ],
             "time": "2021-09-25T23:10:38+00:00"
+        },
+        {
+            "name": "ryancco/laravel-uuid-models",
+            "version": "2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ryancco/laravel-uuid-models.git",
+                "reference": "f621b33b55e2b35e4640f9034de4d8fe57c08bef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ryancco/laravel-uuid-models/zipball/f621b33b55e2b35e4640f9034de4d8fe57c08bef",
+                "reference": "f621b33b55e2b35e4640f9034de4d8fe57c08bef",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^7|^8",
+                "php": "^7.4|^8",
+                "ramsey/uuid": "^4.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ryancco\\HasUuidRouteKey\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ryan Colson",
+                    "email": "ryanccolson@gmail.com"
+                }
+            ],
+            "description": "Trait for working with Eloquent models with UUID route keys",
+            "keywords": [
+                "laravel",
+                "routing",
+                "uuid"
+            ],
+            "support": {
+                "issues": "https://github.com/ryancco/laravel-uuid-models/issues",
+                "source": "https://github.com/ryancco/laravel-uuid-models/tree/2.0"
+            },
+            "time": "2021-04-24T06:17:30+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
