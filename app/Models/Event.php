@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +10,7 @@ use Ryancco\HasUuidRouteKey\HasUuidRouteKey;
 
 class Event extends Model
 {
+    use SoftDeletes;
     use HasFactory;
     use Uuid;
 
@@ -22,4 +24,6 @@ class Event extends Model
         'created_at',
         'updated_at'
     ];
+
+    protected $dates = [ 'deleted_at' ];
 }
