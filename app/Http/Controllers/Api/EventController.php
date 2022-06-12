@@ -18,14 +18,73 @@ class EventController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::all();
-            return response()->json([
-                "success" => true,
-                "message" => "Events List",
-                "data" => $events
-            ]);
+        // $events = Event::all();
+        //     return response()->json([
+        //         "success" => true,
+        //         "message" => "Events List",
+        //         "data" => $events
+        //     ]);
+
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length"); // Rows display per page
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $columnIndex = $columnIndex_arr[0]['column']; // Column index
+        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+        $searchValue = $search_arr['value']; // Search value
+
+        // Total records
+        $totalRecords = Event::select('count(*) as allcount')->count();
+        $totalRecordswithFilter = Event::select('count(*) as allcount')->where('name', 'like', '%' .$searchValue . '%')->count();
+
+        // Fetch records
+        $records = Event::orderBy($columnName,$columnSortOrder)
+               ->where('events.name', 'like', '%' .$searchValue . '%')
+               ->orWhere('events.slug', 'like', '%' .$searchValue . '%')
+              ->select('events.*')
+              ->skip($start)
+              ->take($rowperpage)
+              ->get();
+
+        $data_arr = array();
+
+        foreach($records as $record){
+           $id = $record->id;
+           $name = $record->name;
+           $slug = $record->slug;
+           $startAt = $record->startAt;
+           $endAt = $record->endAt;
+           $created_at = $record->created_at;
+           $updated_at = $record->updated_at;
+
+           $data_arr[] = array(
+               "id" => $id,
+               "name" => $name,
+               "slug" => $slug,
+               "startAt" => $startAt,
+               "endAt" => $endAt,
+               "created_at" => $created_at,
+               "updated_at" => $updated_at,
+               "event_id" => $id,
+           );
+        }
+
+        $response = array(
+           "draw" => intval($draw),
+           "iTotalRecords" => $totalRecords,
+           "iTotalDisplayRecords" => $totalRecordswithFilter,
+           "aaData" => $data_arr
+        );
+
+        return response()->json($response); 
     }
 
     /**
@@ -87,11 +146,53 @@ class EventController extends Controller
             ]);
         }
 
-        return response()->json([
-                "success" => true,
-                "message" => "Event retrieved successfully.",
-                "data" => $event
+    return view('event.detail', [
+            'events' => $event,
+        ]);
+    }
+
+    /**
+     * Display the specified event detail.
+     *
+     * @param  \App\Models\Event  $event
+     * @return \Illuminate\Http\Response
+     */
+    public function showDetail($id)
+    {
+        //
+        $event = Event::find($id);
+        if (is_null($event)) {
+            return response()->json([
+                "success" => false,
+                "message" => "Event not Found.",
             ]);
+        }
+
+    return view('event.detail', [
+            'events' => $event,
+        ]);
+    }
+
+    /**
+     * Display editable the specified event.
+     *
+     * @param  \App\Models\Event  $event
+     * @return \Illuminate\Http\Response
+     */
+    public function editDisplay($id)
+    {
+        //
+        $event = Event::find($id);
+        if (is_null($event)) {
+            return response()->json([
+                "success" => false,
+                "message" => "Event not Found.",
+            ]);
+        }
+
+    return view('event.edit', [
+            'events' => $event,
+        ]);
     }
 
     /**

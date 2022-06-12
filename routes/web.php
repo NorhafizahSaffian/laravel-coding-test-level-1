@@ -19,6 +19,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/events/create', function () {
+    return view('event/create');
+})->name('event.create.page');
+
+Route::get('/events', function () {
+    return View::make("event/view");
+});
+
 //Event
 Route::controller(EventController::class)->group(function(){
 
@@ -35,4 +43,8 @@ Route::controller(EventController::class)->group(function(){
     Route::patch('api/v1/events/{id}', 'update')->name('events.patch');
 
     Route::delete('api/v1/events/{id}', 'delete')->name('events.delete');
+
+    Route::get('events/{id}/edit', 'editDisplay')->name('events.edit.display');
+
+    Route::get('events/{id}', 'showDetail')->name('events.show.display');
 });
