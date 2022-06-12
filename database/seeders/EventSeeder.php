@@ -19,7 +19,7 @@ class EventSeeder extends Seeder
     public function run()
     {
         //create 5 active event dummy data
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             if($i % 2 == 0){
                 $n=2;
             } else if($i % 3 == 0){
@@ -41,7 +41,7 @@ class EventSeeder extends Seeder
         }
 
         //create 5 inactive event dummy data
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             if($i % 2 == 0){
                 $n=2;
             } else if($i % 3 == 0){
