@@ -53,6 +53,9 @@
 
         <!-- UI Timepicker Addon JS-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+
+        <!-- Date format using moment js -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
     </head>
     <body>
         <div class="m-2">
@@ -73,33 +76,37 @@
                                 <label>
                                     <strong>Event Name <span class="text-danger">*</span></strong>
                                 </label>
-                                <input id="event_name" name="event_name" value="" class="w-100" />
+                                <input id="name" name="name" value="" class="w-100" />
                             </div>
                             <div class="form-group col-12">
                                 <label>
                                     <strong>Slug <span class="text-danger">*</span></strong>
                                 </label>
-                                <input id="event_slug" name="event_slug" value="" class="w-100" />
+                                <input id="slug" name="slug" value="" class="w-100" />
                             </div>
 
                             <div class="form-group col-6 col-md-6 col-sm-12">
                                 <label>
                                     <strong>Start Date<span class="text-danger" required>*</span></strong>
                                 </label>
-                                <input type="text" id="start_at" name="start_at" class="w-100" />
+                                <div class="input-group date" id="startAt">
+                                <input type="text" name="startAt" class="w-100" />
+                            </div>
                             </div>
                             <div class="form-group col-6 col-md-6 col-sm-12">
                                 <label>
                                     <strong>End Date<span class="text-danger" required>*</span></strong>
                                 </label>
-                                <input type="text" id="end_at" name="end_at" class="w-100" />
+                                <div class="input-group date" id="endAt">
+                                <input type="text" name="endAt" class="w-100" />
+                            </div>
                             </div>
                         </div>
                     </form>
 
                     <div class="row justify-content-end">
                         <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-4">
-                            <button id="btn-subscribe" class="btn btn-primary btn-sm float-right px-5" type="button">
+                            <button id="btn-create" class="btn btn-primary btn-sm float-right px-5" type="button">
                                 Add Event
                             </button>
                         </div>
@@ -108,7 +115,7 @@
             </div>
         </div>
         <script>
-            $("#start_at").datetimepicker({
+            $("input[name=startAt]").datetimepicker({
                 closeText: "Save",
                 showTimepicker: true,
                 timeInput: true,
@@ -118,7 +125,7 @@
                 timeFormat: "hh:mm TT",
             });
 
-            $("#end_at").datetimepicker({
+            $("input[name=endAt]").datetimepicker({
                 closeText: "Save",
                 showTimepicker: true,
                 timeInput: true,
@@ -127,6 +134,102 @@
                 dateFormat: "dd-mm-yy",
                 timeFormat: "hh:mm TT",
             });
+
+            // Form validation
+            $('#create_event_form').validate({
+                rules         : {
+                    name  : {
+                        required: true,
+                    },
+                    slug: {
+                        required: true
+                    },
+                    start_at: {
+                        required: function(element) {
+                            const nonContractKey = {!! json_encode(config('settings.contract.types.non-contract.key')) !!}
+                            return $('input[type=radio][name=contract_type]:checked').val() !== nonContractKey;
+                        }
+                    },
+                    end_start: {
+                        required: function(element) {
+                            const nonContractKey = {!! json_encode(config('settings.contract.types.non-contract.key')) !!}
+                            return $('input[type=radio][name=contract_type]:checked').val() !== nonContractKey;
+                        }
+                    }
+                },
+                messages      : {
+                    name: {
+                        required: "Event Name is required. ",
+                    },
+                    slug: {
+                        required: "Slug is required. "
+                    },
+                    date_start_format: {
+                        required: "Start At is required. ",
+                    },
+                    endAt: {
+                        required: "End At is required. "
+                    }
+                },
+                errorClass    : "d-block text-danger",
+                validClass    : "is-valid",
+            });
+
+
+
+             // Submit form
+            $('#btn-create').click(function () {
+                
+                let formValid = $('#create_event_form').valid();
+
+
+
+                if (formValid) {
+                    // loading();
+
+                    var date_start_format = moment($('input[name="startAt"]').val(),'DD-MM-YYYY hh:mm A').format('YYYY-MM-DD HH:mm:ss');
+                    $('#startAt>input').val(date_start_format);
+
+                    var end_start_format = moment($('input[name="endAt"]').val(),'DD-MM-YYYY hh:mm A').format('YYYY-MM-DD HH:mm:ss');
+                    $('#endAt>input').val(end_start_format);
+
+                    $.ajax({
+                        type   : 'POST',
+                        url    : "{{ route('events.store') }}",
+                        data   : $('#create_event_form').serialize(),
+                        success: function (response) {
+
+                            console.log(response);
+
+
+                            if ( response['status_code'] === 200 ) {
+                        Swal.fire({
+                            title: `Success`,
+                            text : response['message'],
+                            type : 'success',
+                        }).then((result) => {
+
+                            let eventDetailRoute = "{{ route('events.show.display', ['id' => ':currentRowId' ])  }}";
+                            eventDetailRoute = eventDetailRoute.replace(":currentRowId", response['data'].id);
+
+                            location.replace(eventDetailRoute);
+                        });
+                    } else {
+                        Swal.fire({
+                            title: `FAIL`,
+                            text : response['message'],
+                            type : 'error',
+                        });
+                    }
+                        },
+                        error  : (err) => {
+
+                            console.log(err);
+                        }
+                    });
+                }
+            });
+
         </script>
     </body>
 </html>

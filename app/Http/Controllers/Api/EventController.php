@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Http\Request;
 use App\Http\Requests\EventRequest;
 use Carbon\Carbon;
@@ -20,12 +21,13 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        // $events = Event::all();
-        //     return response()->json([
-        //         "success" => true,
-        //         "message" => "Events List",
-        //         "data" => $events
-        //     ]);
+        $events1 = Event::all();
+            return response()->json([
+                "success" => true,
+                "message" => "Events List",
+                "data" => $events1,
+                "request" =>$request
+            ]);
 
         $draw = $request->get('draw');
         $start = $request->get("start");
@@ -123,6 +125,7 @@ class EventController extends Controller
         $event = Event::create($input);
 
         return response()->json([
+            "status_code" => 200,
             "success" => true,
             "message" => "Event created successfully.",
             "data" => $event,
@@ -137,16 +140,39 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        //
-        $event = Event::find($id);
-        if (is_null($event)) {
+
+        $cachedEvent = Redis::get('event_' . $id);
+
+
+        if(isset($cachedEvent)) {
+            $event = json_decode($cachedEvent, FALSE);
+
             return response()->json([
-                "success" => false,
-                "message" => "Event not Found.",
+                'status_code' => 201,
+                'message' => 'Fetched from redis',
+                'data' => $event,
+            ]);
+        }else {
+            $event = Event::find($id);
+            Redis::set('event_' . $id, $event);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $event,
             ]);
         }
 
-    return view('event.detail', [
+        // //
+        // $event = Event::find($id);
+        // if (is_null($event)) {
+        //     return response()->json([
+        //         "success" => false,
+        //         "message" => "Event not Found.",
+        //     ]);
+        // }
+
+        return view('event.detail', [
             'events' => $event,
         ]);
     }
@@ -236,10 +262,10 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event, $id)
     {
+        $input = $request->all();
 
         //identify either patch or put method request
         if($request->isMethod('put')){
-            $input = $request->all();
 
             $validator = Validator::make($input, [
             'name'       => 'required|string',
@@ -252,27 +278,51 @@ class EventController extends Controller
                     "message" => $validator->errors(),
                 ]);
             }
-        } else {
-            $input = $request->all();
+
+            
 
         }
 
         //if id exist , update the event, if not create new event 
         if (Event::where('id', $id)->exists()) {
             $event = Event::find($id);
-        }
-        $event->name = is_null($input['name']) ? $event->name : $input['name'];
-        $event->slug = is_null($input['slug']) ? $event->slug : $input['slug'];
-        $event->startAt = is_null($input['startAt']) ? $event->startAt : $input['startAt'];
-        $event->endAt = is_null($input['endAt']) ? $event->endAt : $input['endAt'];
-        $event->updated_at = Carbon::now()->toDateTimeString();
-        $event->save();
+        } else {
+            $event->name = is_null($input['name']) ? $event->name : $input['name'];
+            $event->slug = is_null($input['slug']) ? $event->slug : $input['slug'];
+            $event->startAt = is_null($input['startAt']) ? $event->startAt : $input['startAt'];
+            $event->endAt = is_null($input['endAt']) ? $event->endAt : $input['endAt'];
+            $event->updated_at = Carbon::now()->toDateTimeString();
+            // $event->save();
 
-        return response()->json([
-            "success" => true,
-            "message" => Event::where('id', $id)->exists() ? "Event updated successfully." : "Exist Event Not Found, Create New Event Successfully",
-            "data" => $event
-        ]);
+            $event = Event::create($input);
+
+            return response()->json([
+                'status_code' => 200,
+                "success" => true,
+                "message" => "Exist Event Not Found, Create New Event Successfully",
+                "get_by" => "database",
+                "data" => $event,
+            ]);
+        }
+
+        $update = Event::findOrFail($id)->update($input);
+
+        if($update) {
+
+            // Delete event_$id from Redis
+            Redis::del('event_' . $id);
+
+            $event = Event::find($id);
+            // Set a new key with the event id
+            Redis::set('event_' . $id, $event);
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Event updated',
+                'get_by' => 'redis',
+                'data' => $event,
+            ]);
+        } 
     }
 
     /**
