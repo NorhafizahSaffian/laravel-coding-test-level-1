@@ -24,13 +24,6 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $events1 = Event::all();
-            return response()->json([
-                "success" => true,
-                "message" => "Events List",
-                "data" => $events1,
-                "request" =>$request
-            ]);
 
         $draw = $request->get('draw');
         $start = $request->get("start");
@@ -41,10 +34,18 @@ class EventController extends Controller
         $order_arr = $request->get('order');
         $search_arr = $request->get('search');
 
-        $columnIndex = $columnIndex_arr[0]['column']; // Column index
-        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
-        $searchValue = $search_arr['value']; // Search value
+        if($columnIndex_arr != NULL){
+            $columnIndex = $columnIndex_arr[0]['column']; // Column index
+            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+            $searchValue = $search_arr['value']; // Search value
+        } else {
+            $columnName = "id";
+            $searchValue = "";
+            $columnSortOrder = "asc";
+            $start=1;
+            $rowperpage=10;
+        }
 
         // Total records
         $totalRecords = Event::select('count(*) as allcount')->count();
@@ -52,8 +53,12 @@ class EventController extends Controller
 
         // Fetch records
         $records = Event::orderBy($columnName,$columnSortOrder)
-               ->where('events.name', 'like', '%' .$searchValue . '%')
-               ->orWhere('events.slug', 'like', '%' .$searchValue . '%')
+                ->when(isset($searchValue) && !empty($searchValue), function ($records) use ($searchValue) {
+                        $records->where('events.name', 'like', '%' .$searchValue . '%')
+                                ->orWhere('events.slug', 'like', '%' .$searchValue . '%');
+                    })
+               // ->where('events.name', 'like', '%' .$searchValue . '%')
+               // ->orWhere('events.slug', 'like', '%' .$searchValue . '%')
               ->select('events.*')
               ->skip($start)
               ->take($rowperpage)

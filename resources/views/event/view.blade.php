@@ -108,36 +108,35 @@
                     serverSide: true,
                     ajax: "{{route('events.index')}}",
                     columns: [
-                        { data: "id" },
-                        { data: "name" },
-                        { data: "slug" },
+                        {   data: "id" },
+                        {   data: "name" },
+                        {   data: "slug" },
                         {
-                        data: 'startAt',
-                        name: 'startAt',
-                        render: (data) => {
-                            return convertToDisplayDate(data)
-                        }
-                    }, {
-                        data: 'endAt',
-                        name: 'endAt',
-                        render: (data) => {
-                            return convertToDisplayDate(data)
-                        }
-                    }, 
-                        {
-                        data: 'created_at',
-                        name: 'created_at',
-                        render: (data) => {
-                            return convertToDisplayDate(data)
-                        }
-                    }, {
-                        data: 'updated_at',
-                        name: 'updated_at',
-                        render: (data) => {
-                            return convertToDisplayDate(data)
-                        }
-                    }, 
-                        {
+                            data: 'startAt',
+                            name: 'startAt',
+                            render: (data) => {
+                                return convertToDisplayDate(data)
+                            }
+                        }, {
+                            data: 'endAt',
+                            name: 'endAt',
+                            render: (data) => {
+                                return convertToDisplayDate(data)
+                            }
+                        }, {
+                            data: 'created_at',
+                            name: 'created_at',
+                            render: (data) => {
+                                return convertToDisplayDate(data)
+                            }
+                        }, {
+                            data: 'updated_at',
+                            name: 'updated_at',
+                            render: (data) => {
+                                return convertToDisplayDate(data)
+                            }
+                        },
+                         {
                             data: "id",
                             name: "id",
                             orderable: false,
