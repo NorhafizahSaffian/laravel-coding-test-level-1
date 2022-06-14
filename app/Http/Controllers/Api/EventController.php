@@ -9,7 +9,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests\EventRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Validator;
+
+use App\Mail\EventMail;
 
 
 class EventController extends Controller
@@ -123,6 +126,10 @@ class EventController extends Controller
         }
 
         $event = Event::create($input);
+
+        $email = "hafizahsaffian@gmail.com";
+
+        Mail::to($email)->send(new EventMail( $email , $event));
 
         return response()->json([
             "status_code" => 200,

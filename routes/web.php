@@ -46,5 +46,5 @@ Route::controller(EventController::class)->group(function(){
 
     Route::get('events/{id}/edit', 'editDisplay')->name('events.edit.display');
 
-    Route::get('events/{id}', 'showDetail')->name('events.show.display');
+    Route::get('events/{id}', 'showDetail')->name('events.show.display');    
 });
