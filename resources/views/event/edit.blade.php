@@ -73,6 +73,7 @@
             <div class="col-12 col-sm-12 col-md-10 col-lg-9 col-xl-8">
                 <div class="bg-white p-1 p-sm-2 p-lg-3">
                     <form id="edit_event_form">
+                        @csrf
                         <div class="row">
                             <div class="form-group col-12">
                                 <label>
@@ -91,7 +92,7 @@
                                 <label>
                                     <strong>Start Date<span class="text-danger" required>*</span></strong>
                                 </label>
-                                <div class="input-group date" id="endAt">
+                                <div class="input-group date" id="startAt">
                                 <input type="text"  name="startAt" class="w-100" value="{{ Carbon\Carbon::parse( $events->startAt)->format('d-m-Y h:i:s A') }}"/>
                             </div>
                             </div>
@@ -117,26 +118,28 @@
             </div>
         </div>
         <script>
-            $("#start_at").datetimepicker({
+            $("input[name=startAt]").datetimepicker({
                 closeText: "Save",
                 showTimepicker: true,
+                timeInput: true,
                 amNames: ["AM", "A"],
                 pmNames: ["PM", "P"],
                 dateFormat: "dd-mm-yy",
                 timeFormat: "hh:mm TT",
             });
 
-            $("#end_at").datetimepicker({
+            $("input[name=endAt]").datetimepicker({
                 closeText: "Save",
                 showTimepicker: true,
+                timeInput: true,
                 amNames: ["AM", "A"],
                 pmNames: ["PM", "P"],
                 dateFormat: "dd-mm-yy",
                 timeFormat: "hh:mm TT",
-            });
+            });$
 
 
-                        // Form validation
+            // Form validation
             $('#edit_event_form').validate({
                 rules         : {
                     name  : {
@@ -195,7 +198,7 @@
                     $('#endAt>input').val(end_start_format);
 
                     $.ajax({
-                        type   : 'POST',
+                        type   : "PUT",
                         url    : "{{ route('events.update', ['id' => $events->id ]) }}",
                         data   : $('#edit_event_form').serialize(),
                         success: function (response) {
