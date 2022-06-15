@@ -1,72 +1,26 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Datatables Event pagination with Search and Sort in Laravel</title>
+@extends('layouts.app')
 
-        <!-- Meta -->
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta charset="utf-8" />
+<style>
+        #eventTable td {
+            /*border : 1px solid !important;*/
+        }
+</style>
 
-        <!-- Datatable CSS -->
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css" />
+@section('content')
 
-        <!-- Font Awesome  -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" rel="stylesheet" />
-
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous" />
-
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" />
-
-        <!-- Font Awesome  -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" rel="stylesheet" />
-
-        <!-- Open Sans -->
-        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet" type="text/css" />
-
-        <!-- JQuery Stylesheets -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" />
-
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css" />
-
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/css/select2.min.css" />
-
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
-
-        <!-- Popper.js, then Bootstrap JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
-
-        <!-- Bootstrap JS -->
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
-
-        <!-- Jquery Validation -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js" crossorigin="anonymous"></script>
-
-        <!-- Datatable JS -->
-        <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
-
-        <!-- SweetAlert JS-->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
-
-        <!-- UI Timepicker Addon JS-->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
-
-        <!-- Date format using moment js -->
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
-    </head>
-    <body>
+{{-- dd(Auth::user()) --}}
         <div class="container">
             <div class="row justify-content-center">
+
+                @if(Auth::user() !== NULL)
                 <div class="col-4 col-md-4 col-sm-12 mb-3 mt-4">
                     <a class="btn btn-sm btn-primary btn-block p-2" href=" {{ route('event.create.page') }}"><i class="fas fa-plus-circle"></i> Create New Event</a>
                 </div>
+                @endif
 
                 <div class="col-12 ">
 
-                <table id="eventTable" width="100%" border="1" style="border-collapse: collapse;">
+                <table id="eventTable" width="100%" border="1" style="border-collapse: collapse;" class ="table table-bordered">
                     <thead>
                         <tr>
                             <td>ID</td>
@@ -142,8 +96,12 @@
                             orderable: false,
                             render: (data, type, full) => {
                                 const { id: eventId, name: eventName } = full;
+                                const userAuth = "{{ Auth::user() }}";
 
-                                let editEventButtons = `<span data-name="edit-events"
+
+                                console.log(userAuth);
+
+                                let editEventButtons = userAuth != "" ? `<span data-name="edit-events"
                                        data-toggle="tooltip"
                                        data-placement="bottom"
                                        title="Edit Event Details" >
@@ -152,9 +110,9 @@
                                         data-name="${eventName}"
                                         style="cursor: pointer"
                                      ></i>
-                                </span>`;
+                                </span>` : ``;
 
-                                let deleteEventButtons = `<span data-name="delete-events"
+                                let deleteEventButtons = userAuth != "" ? `<span data-name="delete-events"
                                        data-toggle="tooltip"
                                        data-placement="bottom"
                                        title="Delete Event" >
@@ -163,7 +121,7 @@
                                         data-name="${eventName}"
                                         style="cursor: pointer"
                                      ></i>
-                                </span>`;
+                                </span>` : ``;
 
                                 let viewEventButtons = `<span data-name="view-events"
                                        data-toggle="tooltip"
@@ -245,5 +203,4 @@
 
             });
         </script>
-    </body>
-</html>
+    @endsection
